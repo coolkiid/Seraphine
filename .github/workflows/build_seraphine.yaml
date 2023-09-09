@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
+      - p/coolkiid/test-github-actions
   pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build-seraphine:
@@ -40,7 +40,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup environment variables
       run: |
-        export VERSION=`python -c "from app.common.config import VERSION; print(VERSION)"`
+        export VERSION=$(cat app/common/config.py | grep -Po "(?<=VERSION = \")(.*[^\"])")
         echo "VERSION=v$VERSION" >> $GITHUB_ENV
     - name: Download artifact
       uses: actions/download-artifact@v3
@@ -52,7 +52,6 @@ jobs:
       with:
         name: Seraphine ${{ env.VERSION }}
         tag: ${{ env.VERSION }}
-        omitBodyDuringUpdate: true
         token: ${{ secrets.GITHUB_TOKEN }}
         allowUpdates: false
         artifacts: Seraphine.zip
